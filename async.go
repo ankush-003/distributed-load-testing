@@ -48,6 +48,7 @@ func main() {
 		encodedMessages[i] = encodedMessage
 	}
 
+	log.Printf("===================\nStarting Producer\n===================\n")
 	ProducerLoop:
 	for i, v := range encodedMessages {
 		select {

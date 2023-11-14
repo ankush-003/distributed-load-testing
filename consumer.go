@@ -40,6 +40,7 @@ func main() {
 	signal.Notify(signals, os.Interrupt)
 
 	consumed := 0
+	log.Printf("===================\nStarting Consumer\n===================\n")
 	ConsumerLoop:
 	for {
 		select {

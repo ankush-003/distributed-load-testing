@@ -1,19 +1,20 @@
 package main
 
 import (
-  "tester/kafka"
-  "github.com/IBM/sarama"
-  "log"
-  "os"
-  "flag"
+	"flag"
+	"log"
+	"os"
+	"tester/kafka"
+
+	"github.com/IBM/sarama"
 )
 
 func main() {
-	topic := flag.String("topic", "test", "Producer topic name")
+	topic := flag.String("topic", "test", "Consumer topic name")
 	broker := flag.String("broker", "localhost:9092", "Kafka broker address")
 	flag.Parse()
-  
-  brokers := []string{*broker}
+
+	brokers := []string{*broker}
 	config := sarama.NewConfig()
 	config.Consumer.Offsets.Initial = sarama.OffsetNewest
 
@@ -29,10 +30,18 @@ func main() {
 		}
 	}()
 
-	receivedMessages, err := consumer.ConsumeMessages(*topic)
-	if err != nil {
-		log.Fatal(err)
-	}
+	messageChan := make(chan kafka.MetricsMessage)
+	doneChan := make(chan struct{})
 
-	log.Println("Received Messages:", receivedMessages)
+	go consumer.ConsumeMetricsMessages(*topic, messageChan, doneChan)
+
+ConsumerLoop:
+	for {
+		select {
+		case msg := <-messageChan:
+			logger.Println("Received Register Message:", msg)
+		case <-doneChan:
+			break ConsumerLoop
+		}
+	}
 }

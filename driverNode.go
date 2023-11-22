@@ -12,10 +12,10 @@ import (
 )
 
 var topics = map[string]string{
-	"RegisterTopic":   "register",
-	"TestConfigTopic": "testconfig",
-	"TriggerTopic":    "trigger",
-	"MetricsTopic":    "metrics",
+	"RegisterTopic":   "register-topic",
+	"TestConfigTopic": "test-config-topic",
+	"TriggerTopic":    "trigger-topic",
+	"MetricsTopic":    "metrics-topic",
 	"HeartbeatTopic":  "heartbeat",
 }
 
@@ -32,11 +32,11 @@ func main() {
 		NodeIP: "localhost",
 	}
 
-	//	logFile, err := os.OpenFile("Node_"+driverNode.NodeID, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
-	//	if err != nil {
-	//		panic(err)
-	//	}
-	logger := log.New(os.Stdout, "[DriverNode] ", log.LstdFlags)
+	logFile, err := os.OpenFile("Node_"+driverNode.NodeID, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
+	if err != nil {
+		panic(err)
+	}
+	logger := log.New(logFile, "[DriverNode] ", log.LstdFlags)
 
 	consumer, err := kafka.NewConsumer(brokers, config, logger)
 	if err != nil {
@@ -69,6 +69,7 @@ func main() {
 
 	enqueued, _ := producer.ProduceRegisterMessages(topics["RegisterTopic"], []kafka.RegisterMessage{registerMsg})
 	if enqueued > 0 {
+		log.Println("Driver Registered!")
 		logger.Printf("Driver node registered with ID: %s\n", driverNode.NodeID)
 	}
 
@@ -91,17 +92,20 @@ ConsumerLoop:
 		case <-triggerReceived:
 			testConfigMsg, ok := <-testConfigChan
 			if !ok {
+				log.Println("TestConfig Not Received")
 				break ConsumerLoop // Break loop if testConfigChan is closed
 			}
-
 			heart := make(chan struct{})
 
+			log.Println("Received Test Config!")
 			driver.HandleTestConfig(testConfigMsg, &driverNode, logger)
 
 			go driver.SendHeartbeats(topics["HeartbeatTopic"], &driverNode, producer, heart, logger)
 
+			log.Println("Starting Load Test!")
 			driver.HandleTrigger(topics["MetricsTopic"], &driverNode, &testConfigMsg, producer, metricsStore, logger)
 		}
 	}
+	log.Println("Driver Node is Stopping!")
 	logger.Println("Driver Node is Stopping!")
 }

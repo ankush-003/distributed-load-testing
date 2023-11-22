@@ -1,22 +1,26 @@
 package driver
 
 import (
-	"fmt"
-	"github.com/dgraph-io/badger/v3"
-	"github.com/google/uuid"
-	"log"
-	"sort"
-	"tester/kafka"
+  "github.com/dgraph-io/badger/v3"
+  "tester/kafka"
+  "log"
+  "sort"
+	//"os"
+	//"os/signal"
+	//"sync"
 	"time"
+  "github.com/google/uuid"	
+  "fmt"
 )
 
 type DriverNode struct {
-	NodeID                string
-	NodeIP                string
-	TestID                string
-	TestType              string
-	MessageCountPerDriver int
-	TestMessageDelay      int
+	NodeID   string
+	NodeIP   string
+	TestID   string
+	TestType string
+	TestServer string
+  MessageCountPerDriver int
+  TestMessageDelay int
 }
 
 type MetricsStore struct {
@@ -132,7 +136,7 @@ func (m *MetricsStore) CalculateMetrics(logger *log.Logger) (string, string, str
 }
 
 func (m *MetricsStore) ProduceMetricsToTopic(done <-chan struct{}, producer *kafka.Producer, topic string, driverNode *DriverNode, logger *log.Logger) {
-	ticker := time.NewTicker(30 * time.Second) // Adjust the interval for sending metrics
+	ticker := time.NewTicker(10 * time.Millisecond) // Adjust the interval for sending metrics
 	defer ticker.Stop()
 
 	for {
@@ -150,13 +154,13 @@ func (m *MetricsStore) ProduceMetricsToTopic(done <-chan struct{}, producer *kaf
 
 			// Produce metrics message to Kafka
 			metricsMsg := kafka.MetricsMessage{
-				NodeID:   driverNode.NodeID,
-				TestID:   driverNode.TestID,
+				NodeID:  driverNode.NodeID,
+				TestID:  driverNode.TestID,
 				ReportID: uuid.New().String(),
-				Metrics:  metricsData,
+				Metrics: metricsData,
 			}
 			producer.ProduceMetricsMessages(topic, []kafka.MetricsMessage{metricsMsg})
-			logger.Println("Metrics Produced:", metricsMsg)
+      logger.Println("Metrics Produced:", metricsMsg)
 		case <-done:
 			return // Stop producing metrics when done signal is received
 		}

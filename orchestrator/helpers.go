@@ -274,7 +274,7 @@ func (o *Orchestrator) logHeartbeatToBadger(heartbeat kafka.HeartbeatMessage) er
 }
 
 
-func (o *Orchestrator) TriggerLoadTestFromAPI(testType string, testMessageDelay, messageCountPerDriver int) {
+func (o *Orchestrator) TriggerLoadTestFromAPI(testType string,TestServer string, testMessageDelay, messageCountPerDriver int) {
 	// Additional logic to determine when to trigger the load test.
 	// For now, trigger the test immediately.
 
@@ -284,6 +284,7 @@ func (o *Orchestrator) TriggerLoadTestFromAPI(testType string, testMessageDelay,
 	testConfigMessages := []kafka.TestConfigMessage{{
 		TestID:                testID,
 		TestType:              testType,
+		TestServer: TestServer,
 		TestMessageDelay:      testMessageDelay,
 		MessageCountPerDriver: messageCountPerDriver,
 	}}
@@ -291,7 +292,7 @@ func (o *Orchestrator) TriggerLoadTestFromAPI(testType string, testMessageDelay,
 	_, errors := o.testConfigProducer.ProduceTestConfigMessages("test-config-topic", testConfigMessages)
 
 	if errors != 0 {
-		log.Fatalf("Error producing test config message: %s", errors)
+		log.Fatalf("Error producing test config message: %v", errors)
 	}
 
 	// Storing test config data in BadgerDB
@@ -321,6 +322,6 @@ func (o *Orchestrator) TriggerLoadTestFromAPI(testType string, testMessageDelay,
 	_, terrors := o.triggerProducer.ProduceTriggerMessages("trigger-topic", []kafka.TriggerMessage{trigMessage})
 
 	if terrors != 0 {
-		log.Fatalf("Error producing trigger message: %s", terrors)
+		log.Fatalf("Error producing trigger message: %v", terrors)
 	}
 }

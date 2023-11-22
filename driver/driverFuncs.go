@@ -21,7 +21,7 @@ func WaitForTestConfig(testConfigTopic string, triggerTopic string, consumer *ka
 	select {
 	case testConfigMsg := <-testConfigMsgChan:
 		testConfigChan <- testConfigMsg
-	case <-time.After(15 * time.Second):
+	case <-time.After(1 * time.Minute):
 		logger.Println("No test config message received within the timeout")
 	}
 }
@@ -32,9 +32,11 @@ func HandleTestConfig(testConfigMsg kafka.TestConfigMessage, driverNode *DriverN
 
 	// Implement logic for handling test configuration
 	driverNode.TestID = testConfigMsg.TestID
+	driverNode.TestServer = testConfigMsg.TestServer
 	driverNode.TestType = testConfigMsg.TestType
 	driverNode.MessageCountPerDriver = testConfigMsg.MessageCountPerDriver
 	driverNode.TestMessageDelay = testConfigMsg.TestMessageDelay
+	logger.Println("Received Test Config!")
 	logger.Println("Driver Node Info:", driverNode)
 }
 
@@ -46,12 +48,14 @@ func HandleTrigger(metricsTopic string,driverNode *DriverNode, testConfigMsg *ka
 		//defer close(done)
 		metricsStore.ProduceMetricsToTopic(done, producer, metricsTopic, driverNode, logger)
 	}()
-
+	
 	if driverNode.TestType == "AVALANCHE" {
-		AvalancheTesting("http://localhost:8080/ping", metricsStore, driverNode.MessageCountPerDriver, done, logger)
+		logger.Println("Starting Load Test!")
+		AvalancheTesting(driverNode.TestServer, metricsStore, driverNode.MessageCountPerDriver, done, logger)
 		metricsStore.ProduceMetricsToTopicOnce(producer, metricsTopic, driverNode, logger)
 	} else if driverNode.TestType == "TSUNAMI" {
-		TsunamiTesting("http://localhost:8080/ping", metricsStore, driverNode.TestMessageDelay, driverNode.MessageCountPerDriver, done, logger)
+		logger.Println("Starting Load Test!")
+		TsunamiTesting(driverNode.TestServer, metricsStore, driverNode.TestMessageDelay, driverNode.MessageCountPerDriver, done, logger)
 		metricsStore.ProduceMetricsToTopicOnce(producer, metricsTopic, driverNode, logger)
 	} else {
 		logger.Panic("Invalid Test Type")
@@ -75,6 +79,7 @@ func AvalancheTesting(ServerURL string, metricsStore *MetricsStore, requestCount
 	// When testing is completed, signal to stop metrics calculation and sending
 	close(done)
 	logger.Println("Avalanche testing completed")
+	log.Println("Avalanche testing completed")
 }
 
 func TsunamiTesting(ServerURL string, metricsStore *MetricsStore, interval int, requestCount int, done chan struct{}, logger *log.Logger) {
@@ -93,6 +98,7 @@ func TsunamiTesting(ServerURL string, metricsStore *MetricsStore, interval int, 
 	// When testing is completed, signal to stop metrics calculation and sending
 	close(done)
 	logger.Println("Tsunami testing completed")
+	log.Println("Tsunami testing completed")
 }
 
 func SendHTTPRequest(url string, requestNumber int, metricsStore *MetricsStore, logger *log.Logger) {

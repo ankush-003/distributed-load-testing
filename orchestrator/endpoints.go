@@ -44,6 +44,7 @@ func RetrieveAllNodesEndpoint(c *gin.Context, db *badger.DB) {
 func TriggerLoadTestEndpoint(c *gin.Context, orchestrator *Orchestrator) {
 	var requestData struct {
 		TestType              string `json:"test_type" binding:"required"`
+		TestServer             string `json:"test_server"`
 		TestMessageDelay      int    `json:"test_message_delay" binding:"required"`
 		MessageCountPerDriver int    `json:"message_count_per_driver" binding:"required"`
 	}
@@ -55,7 +56,7 @@ func TriggerLoadTestEndpoint(c *gin.Context, orchestrator *Orchestrator) {
 	}
 
 	// Trigger the load test with the provided parameters
-	orchestrator.TriggerLoadTestFromAPI(requestData.TestType, requestData.TestMessageDelay, requestData.MessageCountPerDriver)
+	orchestrator.TriggerLoadTestFromAPI(requestData.TestType,requestData.TestServer, requestData.TestMessageDelay, requestData.MessageCountPerDriver)
 
 	c.JSON(http.StatusOK, gin.H{"message": "Load test triggered successfully"})
 }

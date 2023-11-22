@@ -8,6 +8,7 @@ type RegisterMessage struct {
 
 type TestConfigMessage struct {
   TestID                 string `json:"test_id"`
+  TestServer             string `json:"test_server"`
   TestType               string `json:"test_type"`
   TestMessageDelay       int `json:"test_message_delay"`
   MessageCountPerDriver  int `json:"message_count_per_driver"`
@@ -37,7 +38,3 @@ type HeartbeatMessage struct {
   Heartbeat string `json:"heartbeat"`
   Timestamp string `json:"timestamp"`
 }
-
-
-
-

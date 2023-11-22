@@ -12,7 +12,7 @@ sudo apt-get update -y
 sudo apt-get upgrade -y
 
 echo "======================"
-echo " Downloafing GO installation file "
+echo " Downloading GO installation file "
 echo "======================"
 
 wget https://go.dev/dl/go1.21.3.linux-amd64.tar.gz

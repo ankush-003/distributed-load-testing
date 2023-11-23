@@ -1,4 +1,4 @@
-module tester
+module github.com/ankush-003/distributed-load-testing
 
 go 1.21.3
 

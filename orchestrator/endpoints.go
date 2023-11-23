@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"tester/kafka"
+	"github.com/ankush-003/distributed-load-testing/kafka"
 	"github.com/dgraph-io/badger/v3"
 )
 

@@ -2,7 +2,7 @@ package driver
 
 import (
   "github.com/dgraph-io/badger/v3"
-  "tester/kafka"
+  "github.com/ankush-003/distributed-load-testing/kafka"
   "log"
   "sort"
 	//"os"

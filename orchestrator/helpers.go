@@ -9,7 +9,7 @@ import (
 	"sync"
 	"github.com/dgraph-io/badger/v3"
 	"github.com/google/uuid"
-	"tester/kafka"
+	"github.com/ankush-003/distributed-load-testing/kafka"
 )
 
 type Orchestrator struct {

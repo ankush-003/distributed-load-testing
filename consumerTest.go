@@ -4,7 +4,7 @@ import (
 	"flag"
 	"log"
 	"os"
-	"tester/kafka"
+	"github.com/ankush-003/distributed-load-testing/kafka"
 
 	"github.com/IBM/sarama"
 )

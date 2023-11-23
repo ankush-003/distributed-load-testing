@@ -7,8 +7,8 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"tester/driver"
-	"tester/kafka"
+	"github.com/ankush-003/distributed-load-testing/driver"
+	"github.com/ankush-003/distributed-load-testing/kafka"
 )
 
 var topics = map[string]string{

@@ -1,7 +1,7 @@
 package driver
 
 import (
-	"tester/kafka"
+	"github.com/ankush-003/distributed-load-testing/kafka"
 	"time"
 	"log"
 	"sync"

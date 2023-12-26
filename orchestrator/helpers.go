@@ -310,9 +310,6 @@ func (o *Orchestrator) TriggerLoadTestFromAPI(testType string,TestServer string,
 		log.Fatal(err)
 	}
 
-	// Sleep for a short duration to simulate additional logic
-	time.Sleep(5 * time.Second)
-
 	// Trigger message
 	trigMessage := kafka.TriggerMessage{
 		TestID:  testID,

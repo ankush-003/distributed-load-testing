@@ -221,4 +221,8 @@ func (o *Orchestrator) SetupHTTPHandlers(router *gin.Engine) {
 	router.GET("/heartbeat/:nodeid", func(c *gin.Context) {
 		RetrieveHeartbeatEndpoint(c, o.db)
 	})
+
+	router.GET("test", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"message": "Test successful"})
+	})
 }

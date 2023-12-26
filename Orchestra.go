@@ -41,6 +41,7 @@ if err != nil {
 
 	broker := flag.String("broker", "localhost:9092", "The broker address")
 	heartbeatTimeout := flag.Duration("heartbeat-timeout", 5*time.Minute, "Duration of inactivity after which a node is considered inactive")
+	numDrivers := flag.Int("num-drivers", 2, "Number of driver nodes to expect")
 	flag.Parse()
 	brokers := []string{*broker}
 
@@ -91,7 +92,7 @@ if err != nil {
 
 	// Producer for trigger message
 	producerConfig := sarama.NewConfig()
-	producer, err := kafka.NewProducer([]string{"localhost:9092"}, producerConfig, log.New(os.Stdout, "KafkaProducer: ", log.Ldate|log.Ltime|log.Lshortfile))
+	producer, err := kafka.NewProducer(brokers, producerConfig, log.New(os.Stdout, "KafkaProducer: ", log.Ldate|log.Ltime|log.Lshortfile))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -103,7 +104,7 @@ if err != nil {
 
 	// Producer for test config message
 	testProducerConfig := sarama.NewConfig()
-	testConfigProducer, err := kafka.NewProducer([]string{"localhost:9092"}, testProducerConfig, log.New(os.Stdout, "KafkaProducer: ", log.Ldate|log.Ltime|log.Lshortfile))
+	testConfigProducer, err := kafka.NewProducer(brokers, testProducerConfig, log.New(os.Stdout, "KafkaProducer: ", log.Ldate|log.Ltime|log.Lshortfile))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -127,7 +128,7 @@ if err != nil {
 	// Wait group for the register consumer
 	var wg sync.WaitGroup
 	wg.Add(1)
-	go orchestrator.RunRegisterConsumer(&wg)
+	go orchestrator.RunRegisterConsumer(&wg, *numDrivers)
 	wg.Wait()
 
 
@@ -155,19 +156,10 @@ if err != nil {
 		}
 	}()
 
-	// Create a signal channel to listen for the interrupt signal.
-	signalChan = make(chan os.Signal, 1)
-	signal.Notify(signalChan, os.Interrupt)
-
-
 	// Wait for either an interrupt signal or the HTTP server to exit.
 	select {
 	case <-signalChan:
 		fmt.Println("Received interrupt signal. Shutting down...")
-
-		// Additional cleanup or shutdown logic if needed.
-
-		
 
 		// Close the BadgerDB connection.
 		if err := db.Close(); err != nil {

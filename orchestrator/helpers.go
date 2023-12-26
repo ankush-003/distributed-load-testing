@@ -58,11 +58,11 @@ ConsumerLoop:
 	}
 }
 
-func (o *Orchestrator) RunRegisterConsumer(wg *sync.WaitGroup) {
+func (o *Orchestrator) RunRegisterConsumer(wg *sync.WaitGroup, numDrivers int) {	
 	messageChan := make(chan kafka.RegisterMessage)
 	doneChan := make(chan struct{})
 
-	go o.registerConsumer.ConsumeRegisterMessages("register-topic", messageChan, doneChan,8)
+	go o.registerConsumer.ConsumeRegisterMessages("register-topic", messageChan, doneChan, numDrivers)
 
 ConsumerLoop:
 	for {
@@ -309,6 +309,9 @@ func (o *Orchestrator) TriggerLoadTestFromAPI(testType string,TestServer string,
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// added due to processing delay between test config and trigger at driver node
+	time.Sleep(5 * time.Second)
 
 	// Trigger message
 	trigMessage := kafka.TriggerMessage{

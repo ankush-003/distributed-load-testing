@@ -41,7 +41,7 @@ export default function RootLayout({
               Distributed Load Testing
             </h1>
             </div>
-            <Separator className="mb-10 mt-2" />
+            {/* <Separator className="mb-10 mt-2" /> */}
             {children}
           </div>
         </ThemeProvider>

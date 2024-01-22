@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/button'
 export default function Home() {
   return (
     <div>
-      page
+      <div className='flex justify-center mt-6'>
       <Image src={system_design} alt="system_design" />
+      </div>
     </div>
   )
 }
